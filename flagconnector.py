@@ -50,6 +50,7 @@ class CountryTextData:
 
 
 
+
 country = CountryTextData('usa')
 print country.country_desc
 print country.flag_url

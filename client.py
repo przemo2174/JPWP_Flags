@@ -3,7 +3,7 @@ import json
 
 
 class ClientConnection:
-    def __init__(self, client_ip_address='127.0.0.1', client_port=8080):
+    def __init__(self, client_ip_address='127.0.0.1', client_port=8000):
         self.ip_address = client_ip_address
         self.port = client_port
         self.country = ''
@@ -25,14 +25,9 @@ class ClientConnection:
 
     def send_json(self, server_ip_address, server_port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind((server_ip_address, server_port))
+        sock.connect((server_ip_address, server_port))
         mssg = json.dumps(self.json)
         sock.send(mssg)
-        while True:
-            data = sock.recv(512)
-            if len(data) < 1:
-                break
-            print data
         sock.close()
 
     def print_json(self):
@@ -40,5 +35,5 @@ class ClientConnection:
 
 conn = ClientConnection()
 conn.generate_request_json('Poland', get_flag=True)
-conn.print_json()
+conn.send_json('127.0.0.1', 8001)
 
