@@ -20,7 +20,7 @@ class ClientConnection:
             request += ';getflag'
             self.type = 'image'
         elif check_flag is not None:
-            request = 'checkflag(%s)' % check_flag
+            request += ';checkflag(%s)' % check_flag
 
         self.json = {'address': self.ip_address, 'port': self.port, 'type': self.type, 'content': request}
 
@@ -46,6 +46,6 @@ class ClientConnection:
 
 
 conn = ClientConnection()
-conn.generate_request_json('russian_federation')
+conn.generate_request_json('russian_federation', check_flag="www.rosja.pl")
 conn.send_json_http('127.0.0.1', 5000)
 
