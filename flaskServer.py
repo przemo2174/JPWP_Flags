@@ -3,6 +3,7 @@ from CountryDataManager import CountryTextData
 from DatabaseManager import Database
 import re
 import json
+from ImageComparer import ImageComparer
 
 
 app = Flask(__name__)
@@ -39,6 +40,8 @@ def index():
             return json.dumps(CountryTextData.filter_text_with_tag(description, tag_value))
         elif checkflag_value:
             print checkflag_value
+            print flag_url
+            ImageComparer.download_image(flag_url, country_name + '.gif')
             return 'some country'
         else:
             return description
