@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 
 
 class CountryTextData:
+    """CountryTextData class is responsible for managing, fetching and processing information about country."""
     __special_names = {
         'usa': ('united_states', 'united-states'),
         'russia': ('russian_federation', 'russian-federation')
@@ -49,7 +50,7 @@ class CountryTextData:
                     lst.append(sentence)
             return lst
 
-    def get_flag_url(self):
+    def get_flag_url(self):  # returns flag url for given country
         html = urllib2.urlopen('http://www.mapsofworld.com/flags/' + self.__flag_name + '-flag.html').read()
         soup = BeautifulSoup(html, 'html.parser')
         img_tags = soup.find_all('img')
