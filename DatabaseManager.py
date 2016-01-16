@@ -1,5 +1,6 @@
 
 from pymongo import MongoClient
+from pymongo import cursor
 
 
 class Database:
@@ -8,6 +9,7 @@ class Database:
         self.client = MongoClient(server_addr, port)
         self.db = self.client.countrydb
         self.collection = self.db.countries
+        self.cursor = cursor.Cursor(self.collection)
 
     def get_country_from_database(self, country_name):  # if found, return a tuple containing all country info
         """Tries to find information corresponding to given country in database.
@@ -43,11 +45,12 @@ class Database:
             }
         )
 
-    def fetch_all_countries_from_database(self):
-        pass
-
-
-
+    def fetch_next_country_from_database(self):
+        try:
+            country = self.cursor.next()
+            return country['name'], country['text'], country['flag']
+        except StopIteration:
+            return None
 
     def close(self):
         """Closes connection to database"""
@@ -56,11 +59,7 @@ class Database:
 if __name__ == '__main__':
 
     db = Database()
-    db.add_country_to_database('argentina', 'nice country', 'www')
-    data = db.get_country_from_database('argentina')
-    if data:
-        print data[1]
-    else:
-        print "no"
+    for i in range(0, 14):
+        print db.fetch_next_country_from_database()
 
 
