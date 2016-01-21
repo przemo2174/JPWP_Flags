@@ -18,6 +18,12 @@ class CountryTextData:
         self.flag_url = ''   # self.get_flag_url()
 
     def __get_wiki_flag_name(self):
+        """Creates proper country name compatible with wikipedia and mapsworld
+
+        Returns:
+            A tuple containing proper wikipedia country name and mapsword name respectively
+
+        """
         if self.country_name in CountryTextData.__special_names:
             return CountryTextData.__special_names[self.country_name]
         elif '_' in self.country_name:
@@ -25,32 +31,33 @@ class CountryTextData:
         else:
             return self.country_name, self.country_name
 
-    def get_country_desc(self, tag=None):
+    def get_country_desc(self):
+        """Fetches country description from wikipedia
+
+        Returns:
+            String containing country description
+
+        """
         html = urllib2.urlopen('https://en.wikipedia.org/wiki/' + self.__wiki_name).read()
         soup = BeautifulSoup(html, 'html.parser')
         paragraphs = soup.find_all('p')
 
-        if not re.match('.*' + self.country_name + '.*', str(paragraphs[0]), re.IGNORECASE):
-            del paragraphs[0]
-
         country_desc = ''
-
         for i in range(0, 5):
             country_desc += ''.join(paragraphs[i].find_all(text=True))
 
-        text = ''.join(re.split('\[.*?\]', country_desc))  # building country description from paragraphs
+        text = ''.join(re.split('\[.*?\]', country_desc))  # building country description from paragraphs, erase ex. [12]
+        text = re.sub(r'^(.|\n)*?(?=' + self.country_name[:4] + ')', '', text, 1, re.IGNORECASE)  # erase text until country_name is reached
 
-        if tag is None:
-            return text
-        else:  # if tag is not None, return list of these sentences which contain specific word determined by tag value
-            sentences = re.split('[.?!]', text)
-            lst = []
-            for sentence in sentences:
-                if tag in sentence:
-                    lst.append(sentence)
-            return lst
+        return text
 
-    def get_flag_url(self):  # returns flag url for given country
+    def get_flag_url(self):
+        """Gets Flag URL corresponding to country
+
+        Returns:
+            String containing Flag URL
+
+        """
         html = urllib2.urlopen('http://www.mapsofworld.com/flags/' + self.__flag_name + '-flag.html').read()
         soup = BeautifulSoup(html, 'html.parser')
         img_tags = soup.find_all('img')
@@ -61,16 +68,21 @@ class CountryTextData:
                     img_src = 'http://www.mapsofworld.com/' + img_src[3:]
                 return img_src
 
-    def get_all_data(self):
-        self.country_desc = self.get_country_desc()
-        self.flag_url = self.get_flag_url()
-
     @staticmethod
     def filter_text_with_tag(text, tag):  # returns list of sentences which contain word determined by tag value
-        sentences = re.split('[.?!]', text)
+        """Seeks in text in order to find all sentences containing word determined by tag
+        Args:
+            text(str): Text containing many sentences.
+            tag(str): Word to be looked for in text
+
+        Returns:
+            List of sentences containing word determined by tag
+
+        """
+        sentences = re.split('[.?!]\s?(?=[A-Z])', text)
         lst = []
         for sentence in sentences:
-            if tag in sentence:
+            if re.search('\s' + tag + '(\s|,)', sentence):
                 lst.append(sentence)
         return lst
 

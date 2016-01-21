@@ -52,6 +52,12 @@ class Database:
         except StopIteration:
             return None
 
+    def remove_all_countries_from_database(self):
+        self.collection.remove()
+
+    def remove_country_from_database(self, country_name):
+        self.collection.remove({"name": country_name})
+
     def close(self):
         """Closes connection to database"""
         self.client.close()
@@ -59,7 +65,6 @@ class Database:
 if __name__ == '__main__':
 
     db = Database()
-    for i in range(0, 14):
-        print db.fetch_next_country_from_database()
+    db.remove_all_countries_from_database()
 
 

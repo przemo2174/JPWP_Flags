@@ -25,8 +25,8 @@ class ClientConnection:
 
         Args:
             country(str): Country name
-            tag(str): Special tag which equals to some string. If it is given, server returns all sentences which contain
-            word determined by this tag, otherwise all sentences describing country are returned
+            tag(str): Special tag which equals to some string. If it is given, server returns all sentences which
+            contain word determined by this tag, otherwise all sentences describing country are returned.
             get_flag(bool): When True, server returns flag URL corresponding to given country.
             check_flag(str): Contains URL of unknown flag. When this argument is given it should be only argument passed
             to this function
@@ -57,7 +57,7 @@ class ClientConnection:
 
 
 conn = ClientConnection('127.0.0.1', 5000)
-conn.generate_request_json(check_flag='http://onedayinitaly.com/wp-content/uploads/2014/05/italian-flag.jpg')
+conn.generate_request_json('italy', get_flag=True)
 print conn.json
 response = conn.send_json_http()
 print response

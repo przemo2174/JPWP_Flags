@@ -8,25 +8,21 @@ import Image
 import os
 
 
-class ImageType:
-    GIF = 0
-    JPEG = 1
-    PNG = 2
-
-
 class ImageComparer:
     @staticmethod
     def download_image(image_url, file_name):
         page = urllib2.build_opener().open(image_url)
         image = page.read()
+        print 'im here'
 
-        if 'gif' in image_url:
+        if '.gif' in image_url:
             file_name += '.gif'
-        elif 'jpg' in image_url or 'jpeg' in image_url:
-            file_name += '.jpg'
-        elif 'png' in image_url:
+        elif '.jpg' in image_url or '.jpeg' in image_url:
+            file_name += '.png'
+        elif '.png' in image_url:
             file_name += '.png'
 
+        print file_name
         fout = open(file_name, 'wb')
         fout.write(image)
         fout.close()
@@ -70,7 +66,7 @@ class ImageComparer:
         height = min(rows1, rows2)
         width = min(cols1, cols2)
 
-        return cv2.resize(img1, (width, height)),  cv2.resize(img2, (width, height))
+        return cv2.resize(img1, (height, width)),  cv2.resize(img2, (height, width))
 
     @staticmethod
     def compare_images(img1_path, img2_path):
@@ -78,30 +74,68 @@ class ImageComparer:
         img2 = cv2.imread(img2_path, cv2.IMREAD_COLOR)
         img1, img2 = ImageComparer._change_images_to_equal_size(img1, img2)
 
-        cv2.imwrite('orig.png', img1)
-        cv2.imwrite('rep.png', img2)
+        #cv2.imwrite('orig.png', img1)
+        #cv2.imwrite('rep.png', img2)
 
-        hist1 = cv2.calcHist([img1], [0, 1, 2], None, [8, 8, 8], [0, 256, 0, 256, 0, 256])
-        hist2 = cv2.calcHist([img2], [0, 1, 2], None, [8, 8, 8], [0, 256, 0, 256, 0, 256])
+        img1_tpl = ImageComparer.split_image(img1)
+        img2_tpl = ImageComparer.split_image(img2)
+        sum_corr = 0
 
-        print hist1.shape
+        for i in range(0, 4):
+            img = img1_tpl[i]
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
+            hist1 = ImageComparer.calculate_histogram(img, 2)
+            img = img2_tpl[i]
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
+            hist2 = ImageComparer.calculate_histogram(img, 2)
+            res = cv2.compareHist(hist1, hist2, 0)
+            sum_corr += res
 
-        res = cv2.compareHist(hist1, hist2, 0)
-        print res
-        return res
+        print sum_corr / 4.0
+        return sum_corr / 4.0
+
+    @staticmethod
+    def split_image(img):
+        r = 2
+
+        height, width, _ = img.shape
+        split1 = img[0:height/r, 0:width/r]
+        split2 = img[0:height/r, width/r:]
+        split3 = img[height/r:, 0:width/r]
+        split4 = img[height/r:, width/r:]
+
+        return split1, split2, split3, split4
+
+    @staticmethod
+    def calculate_histogram(img, num=3):
+        if num == 3:
+            return cv2.calcHist([img], [0, 1, 2], None, [8, 8, 8], [0, 256, 0, 256, 0, 256])
+        elif num == 2:
+            return cv2.calcHist([img], [0, 1], None, [16, 16], [0, 256, 0, 256])
+        else:
+            return cv2.calcHist([img], [0], None, [8], [0, 256])
 
 
 if __name__ == '__main__':
-    ImageComparer.download_image('http://www.flagipanstw.eu/images/1/flaga-austrii.png', 'unknown')
-    aus = cv2.imread('austria.png', cv2.IMREAD_COLOR)
-    img = cv2.imread('unknown.png', cv2.IMREAD_COLOR)
-    aus, img = ImageComparer._change_images_to_equal_size(aus, img)
+    im1 = cv2.imread('germany.png')
+    ImageComparer.download_image('https://40.media.tumblr.com/tumblr_lnska0FOKO1qakbgvo1_500.jpg', 'test')
+    im2 = cv2.imread('test.png')
 
-    hist1 = cv2.calcHist([img], [0, 1, 2], None, [8, 8, 8], [0, 256, 0, 256, 0, 256])
-    hist2 = cv2.calcHist([aus], [0, 1, 2], None, [8, 8, 8], [0, 256, 0, 256, 0, 256])
+    im1, im2 = ImageComparer._change_images_to_equal_size(im1, im2)
 
-    res = cv2.compareHist(hist1, hist2, 0)
-    print res
+    print im1.shape
+
+    lst = ImageComparer.split_image(im1)
+    for i in range(0, 4):
+        cv2.imshow(str(i), lst[i])
+        print lst[i].shape
+
+    lst = ImageComparer.split_image(im2)
+    for i in range(0, 4):
+        cv2.imshow(str(i+10), lst[i])
+        print lst[i].shape
+
+    print ImageComparer.compare_images('germany.png', 'test.png')
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
