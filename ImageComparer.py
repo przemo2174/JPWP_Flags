@@ -11,6 +11,16 @@ import os
 class ImageComparer:
     @staticmethod
     def download_image(image_url, file_name):
+        """Downloads image from URL and saves it in the current folder in PNG format.
+
+        Args:
+            image_url(str): URL containing image resource (supports GIF, JPG and PNG format)
+            file_name(str): name of the image file saved on the disk (without extension)
+
+        Returns:
+            Full file_name(str) of image saved in current folder.
+
+        """
         page = urllib2.build_opener().open(image_url)
         image = page.read()
         print 'im here'
@@ -60,6 +70,17 @@ class ImageComparer:
 
     @staticmethod
     def _change_images_to_equal_size(img1, img2):
+        """Resize images so that they are the same size
+
+        Args:
+            img1(numpy): OpenCV numpy array object of first image.
+            img2(numpy): OpenCV numpy array object of second image.
+
+        Returns:
+            A tuple containing images of equal size.
+
+        """
+
         rows1, cols1, colors1 = img1.shape
         rows2, cols2, colors2 = img2.shape
 
@@ -73,9 +94,6 @@ class ImageComparer:
         img1 = cv2.imread(img1_path, cv2.IMREAD_COLOR)
         img2 = cv2.imread(img2_path, cv2.IMREAD_COLOR)
         img1, img2 = ImageComparer._change_images_to_equal_size(img1, img2)
-
-        #cv2.imwrite('orig.png', img1)
-        #cv2.imwrite('rep.png', img2)
 
         img1_tpl = ImageComparer.split_image(img1)
         img2_tpl = ImageComparer.split_image(img2)
@@ -96,6 +114,9 @@ class ImageComparer:
 
     @staticmethod
     def split_image(img):
+        """Splits image to four parts.
+
+        """
         r = 2
 
         height, width, _ = img.shape

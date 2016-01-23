@@ -29,7 +29,7 @@ class Server:
     def generate_and_return_response(self):
         if self.checkflag_value:
             name = self.check_flag()
-            #  delete_all_images()
+            delete_all_images()
             self.db.close()
             return name
         else:
@@ -81,29 +81,6 @@ class Server:
                 break
         return country_name
 
-    def check_flag_test(self, url):
-        self.db = Database()
-        file_name_unk = ImageComparer.download_image(url, 'mysterious')
-        max_res = 0
-        country_name = ''
-        while True:
-            country = self.db.fetch_next_country_from_database()
-            if country is not None:
-                name, text, flag_url = country
-                try:
-                    file_name_co = ImageComparer.download_image(flag_url, name)
-                except ValueError:
-                    continue
-                res = ImageComparer.compare_images(file_name_unk, file_name_co)
-                print name
-                if res > max_res:
-                    max_res = res
-                    country_name = name
-            else:
-                break
-        self.db.close()
-        return country_name
-
     @staticmethod
     def __retrieve_json_attribute_value(data, content):
         if data == 'tag' or data == 'checkflag':
@@ -134,6 +111,3 @@ def delete_all_images():
 
 if __name__ == '__main__':
     app.run(debug=True)
-    db = Database()
-    check_flag('http://www.mapsofworld.com/images/world-countries-flags/austria-flag.gif', db)
-    db.close()

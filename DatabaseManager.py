@@ -46,6 +46,12 @@ class Database:
         )
 
     def fetch_next_country_from_database(self):
+        """Gets next country form database
+
+         Returns:
+             A tuple containing country name, country description, country flag URL.
+
+        """
         try:
             country = self.cursor.next()
             return country['name'], country['text'], country['flag']
@@ -63,8 +69,5 @@ class Database:
         self.client.close()
 
 if __name__ == '__main__':
-
     db = Database()
     db.remove_all_countries_from_database()
-
-

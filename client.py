@@ -22,6 +22,11 @@ class ClientConnection:
 
     def generate_request_json(self, country='', tag=None, get_flag=False, check_flag=None):
         """Generates json based on given arguments
+        Examples:
+            generate_request_json('france') - returns description of france
+            generate_request_json('germany', tag='with') - returns sentences from germany description containing 'with' word.
+            generate_request_json('england', get_flag=True) - returns URL of england flag.
+            generate_request_json(checkflag='[flag_url]') - returns country name corresponding to flag.
 
         Args:
             country(str): Country name
@@ -57,7 +62,7 @@ class ClientConnection:
 
 
 conn = ClientConnection('127.0.0.1', 5000)
-conn.generate_request_json('italy', get_flag=True)
+conn.generate_request_json(check_flag='http://www.mapsofworld.com/images/world-countries-flags/finland-flag.gif')
 print conn.json
 response = conn.send_json_http()
 print response
